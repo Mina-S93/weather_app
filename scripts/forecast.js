@@ -1,21 +1,18 @@
-const key = '1z6PHo7fc4thwKBwpvAGOIisVGnUArVF';
+const key = '3bba488930074539b2380128212604';
 
-let citySearch = async (city) => {
-    let url = 'http://dataservice.accuweather.com/locations/v1/cities/search';
-    let cityApi = `?apikey=${key}&q=${city}`
+let citySearch = (city) => {
+    let url = 'https://api.weatherapi.com/v1/current.json';
+    let cityApi = `?key=${key}&q=${city}`;
 
-    let response = await fetch(url + cityApi);
-    let data = await response.json();
-    return data[0];
-}
+    // let response = await fetch(url + cityApi);
+    // let data = await response.json();
+    // return data[0];
 
-let temperature = async (cityKey) => {
-    let url = 'http://dataservice.accuweather.com/currentconditions/v1/';
-    let cityApi = `${cityKey}?apikey=${key}`;
+    let res = fetch(url + cityApi)
+    .then((response) => response.json())
+    .then((data) => {console.log(data); return data});
+    return res;
 
-    let response = await fetch(url + cityApi);
-    let data = await response.json();
-    return data[0];
 }
 
 
@@ -31,26 +28,21 @@ let deg = document.querySelector('.deg');
 form.addEventListener('submit', (e) => {
     e.preventDefault();
     let grad = form.city.value.trim();
-    let cityKey;
     citySearch(grad).then(obj => {
-        imeGrada.innerHTML = obj.EnglishName;
-        console.log(obj);
-        cityKey = obj.Key;
-        temperature(cityKey).then(obj =>{
-            console.log(obj);
-            temp.innerHTML = obj.Temperature.Metric.Value;
-            description.innerHTML = obj.WeatherText;
-            icon.innerHTML = `<img src="img/icons/${obj.WeatherIcon}.svg">`;
-            deg.style.display = 'inline';
-            if(obj.IsDayTime == true){
+        imeGrada.innerHTML = obj.location.name;
+        temp.innerHTML = obj.current.temp_c;
+        description.innerHTML = obj.current.condition.text;
+        icon.innerHTML = `<img src="${obj.current.condition.icon.slice(21)}">`;
+        deg.style.display = 'inline';
+        if(obj.current.is_day == 1){
                 container.style.backgroundImage = "url('img/day.svg')";
                 container.style.color = '#000';
             } else {
                 container.style.backgroundImage = "url('img/night.svg')";
                 container.style.color = '#fff';
-            }
-        })
+        }
+
     });
 
     form.reset();
-})
+});
